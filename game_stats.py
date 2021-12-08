@@ -10,5 +10,5 @@ class GameStats:
         self.reset_stats()
 
     def reset_stats(self):
-        print("reset")
-
+        # print("reset")
+        pass

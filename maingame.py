@@ -30,6 +30,7 @@ def run_game():
     pygame.display.set_caption("game")
     bullets = Group()
     aliens = Group()
+    alien_bullets_1 = Group()
 
     gf.create_fleet(game_setting,screen,aliens)
     bg = pygame.image.load('./images/bg0.png').convert()
@@ -42,14 +43,16 @@ def run_game():
         # print("while..........................")
         # 一次循环，可以拿到好几个事件，循环遍历这些事件,但实际程序循环太快了，一次就一个事件
 
-        gf.check_events(game_setting, screen, ship, bullets, aliens,gifts,shot_sound, bg, stats, play_btn)
+        gf.check_events(game_setting, screen, ship, bullets, aliens,gifts,shot_sound, bg, stats, play_btn,alien_bullets_1)
         if stats.game_active:
             ship.move()
             gf.update_bullets(game_setting,screen,bullets,aliens,gifts,collision_sound)
             gf.update_aliens(game_setting,aliens,ship,stats)
+
+            # gf.check_alien(game_setting,screen,aliens,alien_bullets_1)
             gf.update_gifts(game_setting,gifts,ship,gift_sound)
 
-        gf.update_screen(game_setting,screen,ship,bullets,aliens,gifts,play_btn,stats)
+        gf.update_screen(game_setting,screen,ship,bullets,aliens,gifts,play_btn,stats,alien_bullets_1)
 
 
 run_game()

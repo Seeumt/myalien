@@ -9,6 +9,8 @@ import pygame
 from bullet import Bullet
 from alien import Alien
 from gift import Gift
+from pygame.sprite import Group
+import time
 
 
 def change_alien_direction(game_setting, aliens):
@@ -55,6 +57,7 @@ def update_gifts(game_setting, gifts, ship, gift_sound):
 
 def update_bullets(game_setting, screen, bullets, aliens, gifts, collision_sound):
     # todo 通过让Sprite的Group() 数组里的每个bullet对象调用update()方法，让子弹出现
+    # 装好子弹后，直接将Sprite的Group数组对象调用update()方法
     bullets.update()
     # 删除消失的子弹
     for bullet in bullets.copy():
@@ -88,17 +91,44 @@ def update_bullets(game_setting, screen, bullets, aliens, gifts, collision_sound
 #     gift.rect.centerx = x
 #     gift.rect.centery = y
 #     gift.update()
-#     # todo 加了pygame.display.flip()为啥只是闪了一下
 
+
+# 1.创建子弹，将子弹加入Sprites的Group数组中
 def fire_bullet(game_setting, screen, ship, bullets):
     if len(bullets) < game_setting.bullet_allowed:
         new_bullet = Bullet(game_setting, screen, ship)
         new_bullet.direction = ship.direction
+        new_bullet.host = 'ship'
         # print("new_bullet.direction:", new_bullet.direction)
         bullets.add(new_bullet)
 
 
-def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound):
+def alien_attack(game_setting, screen, aliens, alien_bullets_1):
+    for alien in aliens.sprites():
+        new_bullet = Bullet(game_setting, screen, alien)
+        new_bullet.host = 'alien'
+        # new_bullet.direction = ship.direction
+        # print("new_bullet.direction:", new_bullet.direction)
+        alien_bullets_1.add(new_bullet)
+    # for alien in aliens.sprites():
+    #     alien_bullets = Group()
+    #     alien_bullets = alien_fire_bullet(game_setting, screen, alien, alien_bullets)
+    #     alien_bullets.update()
+    #     alien_bullets_1.add(alien_bullets)
+
+
+def alien_fire_bullet(game_setting, screen, alien, alien_bullets):
+    new_bullet = Bullet(game_setting, screen, alien)
+    new_bullet.host = 'alien'
+    new_bullet.direction = alien.direction
+    # new_bullet.direction = ship.direction
+    # print("new_bullet.direction:", new_bullet.direction)
+    alien_bullets.add(new_bullet)
+
+    return alien_bullets
+
+
+def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1):
     if event.key == pygame.K_RIGHT:
         # print("向右走")
         ship.moving_right = True
@@ -121,9 +151,11 @@ def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound)
         ship.image = pygame.image.load('images/' + ship.direction + str(ship.level) + '.png')
 
     elif event.key == pygame.K_SPACE:
-        shot_sound.play()
-        # print("攻击")
+        if len(bullets)<game_setting.bullet_allowed:
+            shot_sound.play()
         fire_bullet(game_setting, screen, ship, bullets)
+    elif event.key == pygame.K_F1:
+        alien_attack(game_setting, screen, aliens, alien_bullets_1)
 
 
 def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y):
@@ -139,17 +171,17 @@ def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bulle
 
         create_fleet(game_setting, screen, aliens)
         ship.center_ship()
-        ship.live = 3
+        ship.live = game_setting.ship_live
 
 
-def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn):
+def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn, alien_bullets_1):
     screen.blit(bg, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         # 必须要写大前提事件
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound)
+            check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
         # todo 监听鼠标点击事件
@@ -158,12 +190,16 @@ def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound,
             check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y)
 
 
-def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, stats):
+def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, stats, alien_bullets_1):
     # screen.fill(game_setting.bg_color)
     for bullet in bullets.sprites():
         bullet.appear()
     for gift in gifts.sprites():
         gift.appear()
+
+    for alien_bullet in alien_bullets_1.sprites():
+        alien_bullet.appear()
+
     # for alien in aliens.sprites():
     #     alien.appear()
     # todo aliens.draw(screen) 与 appear关系
@@ -211,3 +247,7 @@ def create_alien(game_setting, screen, aliens, alien_number):
     alien.rect.y = random.randrange(0, game_setting.screen_height - alien_height)
 
     aliens.add(alien)
+
+
+def check_alien(game_setting, screen, aliens, alien_bullets_1):
+    pass
