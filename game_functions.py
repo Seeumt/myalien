@@ -24,29 +24,30 @@ def check_fleet_edges(game_setting, aliens):
             alien.change_direction()
             break
 
+
 # todo 飞船和怪物碰撞时。。。。
-def update_aliens(game_setting, aliens, ship):
+def update_aliens(game_setting, aliens, ship, stats):
     check_fleet_edges(game_setting, aliens)
     aliens.update()
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, aliens):
-        # print("Oops")
-        pass
+        stats.game_active = not stats.game_active
+        # pass
 
 
-def update_gifts(game_setting, gifts, ship,gift_sound):
+def update_gifts(game_setting, gifts, ship, gift_sound):
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, gifts):
         gift_sound.play()
         # play_gift_sound()
         collisions = pygame.sprite.spritecollideany(ship, gifts)
-        if ship.level < len(game_setting.ship_image)-1:
+        if ship.level < len(game_setting.ship_image) - 1:
             ship.level = ship.level + 1
             ship.image = pygame.image.load(game_setting.ship_image[ship.level])
         collisions.remove(gifts)
 
 
-def update_bullets(game_setting, screen, bullets, aliens, gifts,collision_sound):
+def update_bullets(game_setting, screen, bullets, aliens, gifts, collision_sound):
     # todo 通过让Sprite的Group() 数组里的每个bullet对象调用update()方法，让子弹出现
     bullets.update()
     # 删除消失的子弹
@@ -91,7 +92,7 @@ def fire_bullet(game_setting, screen, ship, bullets):
         bullets.add(new_bullet)
 
 
-def check_keydown_events(event, game_setting, screen, ship, bullets,shot_sound):
+def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound):
     if event.key == pygame.K_RIGHT:
         # print("向右走")
         ship.moving_right = True
@@ -119,19 +120,36 @@ def check_keydown_events(event, game_setting, screen, ship, bullets,shot_sound):
         fire_bullet(game_setting, screen, ship, bullets)
 
 
-def check_events(game_setting, screen, ship, bullets,shot_sound):
+def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets,gifts,mouse_x, mouse_y):
+    btn_clicked = play_btn.rect.collidepoint(mouse_x, mouse_y)
+    if btn_clicked and not stats.game_active:
+        stats.game_active = True
+
+        aliens.empty()
+        bullets.empty()
+        gifts.empty()
+
+        create_fleet(game_setting,screen,aliens)
+        ship.center_ship()
+
+
+def check_events(game_setting, screen, ship, bullets,aliens,gifts, shot_sound, bg, stats, play_btn):
+    screen.blit(bg, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         # 必须要写大前提事件
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, game_setting, screen, ship, bullets,shot_sound)
+            check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
+        # todo 监听鼠标点击事件
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(game_setting,screen,stats, play_btn,ship,aliens,bullets,gifts,mouse_x, mouse_y)
 
 
-def update_screen(game_setting, screen, ship, bullets, aliens, gifts, bg):
-    screen.blit(bg, (0, 0))
+def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, stats):
     # screen.fill(game_setting.bg_color)
     for bullet in bullets.sprites():
         bullet.appear()
@@ -145,6 +163,8 @@ def update_screen(game_setting, screen, ship, bullets, aliens, gifts, bg):
     # print((x,y))
     # appear_gift(screen, game_setting, x, y)
     # alien.appear()
+    if not stats.game_active:
+        play_btn.draw_button()
     pygame.display.flip()
 
 
