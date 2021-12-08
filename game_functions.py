@@ -31,14 +31,20 @@ def update_aliens(game_setting, aliens, ship, stats):
     aliens.update()
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, aliens):
-        stats.game_active = not stats.game_active
+        ship.live = ship.live - 1
+        ship.center_ship()
+        if ship.live == 0:
+            stats.game_active = False
+            pygame.mouse.set_visible(True)
         # pass
 
 
 def update_gifts(game_setting, gifts, ship, gift_sound):
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, gifts):
+        ship.live = ship.live + 1
         gift_sound.play()
+        game_setting.alien_speed = game_setting.alien_speed + 0.3
         # play_gift_sound()
         collisions = pygame.sprite.spritecollideany(ship, gifts)
         if ship.level < len(game_setting.ship_image) - 1:
@@ -120,20 +126,23 @@ def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound)
         fire_bullet(game_setting, screen, ship, bullets)
 
 
-def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets,gifts,mouse_x, mouse_y):
+def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y):
     btn_clicked = play_btn.rect.collidepoint(mouse_x, mouse_y)
     if btn_clicked and not stats.game_active:
-        stats.game_active = True
+        pygame.mouse.set_visible(False)
 
+        stats.game_active = True
+        game_setting.alien_speed = 1
         aliens.empty()
         bullets.empty()
         gifts.empty()
 
-        create_fleet(game_setting,screen,aliens)
+        create_fleet(game_setting, screen, aliens)
         ship.center_ship()
+        ship.live = 3
 
 
-def check_events(game_setting, screen, ship, bullets,aliens,gifts, shot_sound, bg, stats, play_btn):
+def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn):
     screen.blit(bg, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -146,7 +155,7 @@ def check_events(game_setting, screen, ship, bullets,aliens,gifts, shot_sound, b
         # todo 监听鼠标点击事件
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(game_setting,screen,stats, play_btn,ship,aliens,bullets,gifts,mouse_x, mouse_y)
+            check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y)
 
 
 def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, stats):

@@ -30,6 +30,9 @@ class Ship:
 
         self.direction = "up"
 
+        self.live = 3
+
+
 
 
     def appear(self):
