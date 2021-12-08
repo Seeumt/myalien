@@ -24,7 +24,7 @@ def check_fleet_edges(game_setting, aliens):
             alien.change_direction()
             break
 
-
+# todo 飞船和怪物碰撞时。。。。
 def update_aliens(game_setting, aliens, ship):
     check_fleet_edges(game_setting, aliens)
     aliens.update()
@@ -34,23 +34,19 @@ def update_aliens(game_setting, aliens, ship):
         pass
 
 
-def update_gifts(game_setting, gifts, ship):
+def update_gifts(game_setting, gifts, ship,gift_sound):
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, gifts):
-
-        play_gift_sound()
+        gift_sound.play()
+        # play_gift_sound()
         collisions = pygame.sprite.spritecollideany(ship, gifts)
         if ship.level < len(game_setting.ship_image)-1:
             ship.level = ship.level + 1
             ship.image = pygame.image.load(game_setting.ship_image[ship.level])
         collisions.remove(gifts)
 
-def play_gift_sound():
-    pygame.mixer.music.load('sound/gift.mp3')  # 加载背景音乐
-    pygame.mixer.music.set_volume(100)  # 设置音量
-    pygame.mixer.music.play()
 
-def update_bullets(game_setting, screen, bullets, aliens, gifts):
+def update_bullets(game_setting, screen, bullets, aliens, gifts,collision_sound):
     # todo 通过让Sprite的Group() 数组里的每个bullet对象调用update()方法，让子弹出现
     bullets.update()
     # 删除消失的子弹
@@ -66,6 +62,8 @@ def update_bullets(game_setting, screen, bullets, aliens, gifts):
     # todo pygame.sprite.groupcollide 碰撞功能 除此之外，如何实现掉落
 
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if collisions:
+        collision_sound.play()
     for bullet in collisions:  # each bullet
         for alien in collisions[bullet]:  # each alien that collides with that bullet
             # print(alien.rect.x,alien.rect.y)
@@ -93,7 +91,7 @@ def fire_bullet(game_setting, screen, ship, bullets):
         bullets.add(new_bullet)
 
 
-def check_keydown_events(event, game_setting, screen, ship, bullets):
+def check_keydown_events(event, game_setting, screen, ship, bullets,shot_sound):
     if event.key == pygame.K_RIGHT:
         # print("向右走")
         ship.moving_right = True
@@ -116,17 +114,18 @@ def check_keydown_events(event, game_setting, screen, ship, bullets):
         ship.image = pygame.image.load('images/' + ship.direction + str(ship.level) + '.png')
 
     elif event.key == pygame.K_SPACE:
+        shot_sound.play()
         # print("攻击")
         fire_bullet(game_setting, screen, ship, bullets)
 
 
-def check_events(game_setting, screen, ship, bullets):
+def check_events(game_setting, screen, ship, bullets,shot_sound):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
         # 必须要写大前提事件
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, game_setting, screen, ship, bullets)
+            check_keydown_events(event, game_setting, screen, ship, bullets,shot_sound)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
 

@@ -16,7 +16,11 @@ def run_game():
 
     pygame.mixer.music.load('./sound/piano1.mp3')  # 加载背景音乐
     pygame.mixer.music.set_volume(100)  # 设置音量
-    pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1,0.0)
+    gift_sound = pygame.mixer.Sound('sound/gift4.mp3')
+    shot_sound = pygame.mixer.Sound('sound/attack.mp3')
+    collision_sound = pygame.mixer.Sound('sound/collision2.mp3')
+    musicPlaying = True
 
     # todo pygame的内置构建screen对象函数 display.set_mode
     screen = pygame.display.set_mode((game_setting.screen_width,game_setting.screen_height))
@@ -32,11 +36,11 @@ def run_game():
 
         # print("while..........................")
         # 一次循环，可以拿到好几个事件，循环遍历这些事件,但实际程序循环太快了，一次就一个事件
-        gf.check_events(game_setting,screen,ship,bullets)
+        gf.check_events(game_setting,screen,ship,bullets,shot_sound)
         ship.move()
-        gf.update_bullets(game_setting,screen,bullets,aliens,gifts)
+        gf.update_bullets(game_setting,screen,bullets,aliens,gifts,collision_sound)
         gf.update_aliens(game_setting,aliens,ship)
-        gf.update_gifts(game_setting,gifts,ship)
+        gf.update_gifts(game_setting,gifts,ship,gift_sound)
         gf.update_screen(game_setting,screen,ship,bullets,aliens,gifts,bg)
 
 run_game()
