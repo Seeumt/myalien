@@ -17,7 +17,7 @@ class Alien(Sprite):
         self.screen_rect = self.screen.get_rect()
         self.game_setting = game_setting
 
-        self.image = pygame.image.load("images/boss0.png")
+        self.image = pygame.image.load("images/alien3.png")
         self.rect = self.image.get_rect()
 
         # todo centerx 与 x 的区别

@@ -31,6 +31,9 @@ class Ship:
         self.direction = "up"
 
         self.live = 3
+        self.live_volume = game_setting.ship_live_volume
+
+        self.radius = 0.05
 
 
 
@@ -53,5 +56,6 @@ class Ship:
     # def check_role_position(self):
 
     def center_ship(self):
+        self.rect = self.image.get_rect()
         self.rect.centerx = self.screen_rect.centerx
         self.rect.bottom = self.screen_rect.bottom

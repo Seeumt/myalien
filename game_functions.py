@@ -27,26 +27,54 @@ def check_fleet_edges(game_setting, aliens):
             break
 
 
+def update_ship(game_setting, ship, stats):
+    ship.live_volume = ship.live_volume - 0.01
+    # print(ship.live_volume)
+    if ship.live_volume <= 0:
+        #     ship.live = ship.live - 1
+        #     ship.live_volume = 10
+        # if ship.live == 0:
+        dead_gameover(stats, ship, game_setting)
+
+
 # todo 飞船和怪物碰撞时。。。。
-def update_aliens(game_setting, aliens, ship, stats):
+def update_aliens(game_setting, bullets, aliens, gifts, ship, stats):
     check_fleet_edges(game_setting, aliens)
     aliens.update()
     # todo 新函数 spritecollideany(ship,aliens)
-    if pygame.sprite.spritecollideany(ship, aliens):
-        ship.live = ship.live - 1
-        ship.center_ship()
-        if ship.live == 0:
-            stats.game_active = False
-            pygame.mouse.set_visible(True)
+    # if pygame.sprite.spritecollideany(ship, aliens):
+    if pygame.sprite.spritecollide(ship, aliens, True, pygame.sprite.collide_circle):
+        # live_again(game_setting, ship, aliens, bullets, gifts)
+        dead_gameover(stats, ship, game_setting)
+
+        # if ship.live == 0:
+        #     stats.game_active = False
+        #     pygame.mouse.set_visible(True)
         # pass
+
+
+def live_again(game_setting, ship, aliens, bullets, gifts):
+    ship.live = ship.live - 1
+    aliens.empty()
+    bullets.empty()
+    gifts.empty()
+    ship.live_volume = game_setting.ship_live_volume
+    ship.center_ship()
 
 
 def update_gifts(game_setting, gifts, ship, gift_sound):
     # todo 新函数 spritecollideany(ship,aliens)
     if pygame.sprite.spritecollideany(ship, gifts):
-        ship.live = ship.live + 1
+        # ship.live = ship.live + 1
+        ship.live_volume = game_setting.ship_live_volume
         gift_sound.play()
-        game_setting.alien_speed = game_setting.alien_speed + 0.3
+
+        gift_type = pygame.sprite.spritecollideany(ship, gifts).gift_type
+        if gift_type == 0:
+            ship.ship_speed += 0.3
+        if gift_type == 1:
+            game_setting.alien_speed = game_setting.alien_speed - 0.2
+        game_setting.alien_speed = game_setting.alien_speed + 0.2
         # play_gift_sound()
         collisions = pygame.sprite.spritecollideany(ship, gifts)
         if ship.level < len(game_setting.ship_image) - 1:
@@ -77,20 +105,15 @@ def update_bullets(game_setting, screen, bullets, aliens, gifts, collision_sound
     for bullet in collisions:  # each bullet
         for alien in collisions[bullet]:  # each alien that collides with that bullet
             # print(alien.rect.x,alien.rect.y)
+
             gift = Gift(screen, game_setting)
             gift.rect.x = alien.rect.x
             gift.rect.y = alien.rect.y
             gifts.add(gift)
+            # print(gift.type)
     if len(aliens) == 0:
         bullets.empty()
         create_fleet(game_setting, screen, aliens)
-
-
-# def appear_gift(screen, game_setting, x, y):
-#     gift = Gift(screen, game_setting)
-#     gift.rect.centerx = x
-#     gift.rect.centery = y
-#     gift.update()
 
 
 # 1.创建子弹，将子弹加入Sprites的Group数组中
@@ -128,7 +151,7 @@ def alien_fire_bullet(game_setting, screen, alien, alien_bullets):
     return alien_bullets
 
 
-def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1):
+def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1,stats):
     if event.key == pygame.K_RIGHT:
         # print("向右走")
         ship.moving_right = True
@@ -151,7 +174,7 @@ def check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound,
         ship.image = pygame.image.load('images/' + ship.direction + str(ship.level) + '.png')
 
     elif event.key == pygame.K_SPACE:
-        if len(bullets)<game_setting.bullet_allowed:
+        if len(bullets) < game_setting.bullet_allowed and stats.game_active:
             shot_sound.play()
         fire_bullet(game_setting, screen, ship, bullets)
     elif event.key == pygame.K_F1:
@@ -168,29 +191,37 @@ def check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bulle
         aliens.empty()
         bullets.empty()
         gifts.empty()
+        ship.live_volume = game_setting.ship_live_volume
 
         create_fleet(game_setting, screen, aliens)
         ship.center_ship()
         ship.live = game_setting.ship_live
 
 
-def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn, alien_bullets_1):
+def check_exit_button(game_setting, screen, stats, exit_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y):
+    if exit_btn.rect.collidepoint(mouse_x, mouse_y):
+        print("exit")
+
+
+
+def check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn, exit_btn,
+                 alien_bullets_1):
     screen.blit(bg, (0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        # 必须要写大前提事件
         elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1)
+            check_keydown_events(event, game_setting, screen, ship, bullets, shot_sound, aliens, alien_bullets_1,stats)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, ship)
         # todo 监听鼠标点击事件
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             check_play_button(game_setting, screen, stats, play_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y)
+            # check_exit_button(game_setting, screen, stats, exit_btn, ship, aliens, bullets, gifts, mouse_x, mouse_y)
 
 
-def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, stats, alien_bullets_1):
+def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, exit_btn, stats, alien_bullets_1):
     # screen.fill(game_setting.bg_color)
     for bullet in bullets.sprites():
         bullet.appear()
@@ -200,17 +231,14 @@ def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, 
     for alien_bullet in alien_bullets_1.sprites():
         alien_bullet.appear()
 
-    # for alien in aliens.sprites():
-    #     alien.appear()
-    # todo aliens.draw(screen) 与 appear关系
+
     ship.appear()
     aliens.draw(screen)
-    # print((x,y))
-    # appear_gift(screen, game_setting, x, y)
-    # alien.appear()
-    if not stats.game_active:
-        play_btn.draw_button()
-    pygame.display.flip()
+
+    if not stats.game_active and ship.live_volume<=0:
+        play_btn.draw_btn()
+        exit_btn.draw_btn()
+
 
 
 def check_keyup_events(event, ship):
@@ -225,10 +253,8 @@ def check_keyup_events(event, ship):
 
 
 def create_fleet(game_setting, screen, aliens):
-    alien = Alien(screen, game_setting)
-    # number_aliens_x = get_number_alien_x(game_setting, alien.rect.width)
-    number_aliens_x = 5
-    for alien_number in range(number_aliens_x):
+
+    for alien_number in range(game_setting.alien_number):
         create_alien(game_setting, screen, aliens, alien_number)
 
 
@@ -244,10 +270,25 @@ def create_alien(game_setting, screen, aliens, alien_number):
     alien_height = alien.rect.height
     alien.x = alien_width + 2 * alien_width * alien_number
     alien.rect.x = random.randrange(0, game_setting.screen_width - alien_width)
-    alien.rect.y = random.randrange(0, game_setting.screen_height - alien_height)
+    alien.rect.y = random.randrange(0, game_setting.screen_height - 2 * alien_height)
 
     aliens.add(alien)
 
 
-def check_alien(game_setting, screen, aliens, alien_bullets_1):
-    pass
+def dead_gameover(stats, ship, game_setting):
+    ship.live_volume = 0
+    stats.game_active = False
+    pygame.mouse.set_visible(True)
+    resetShip(ship,game_setting)
+
+def resetShip(ship,game_setting):
+    ship.ship_speed = game_setting.ship_speed
+    ship.image = pygame.image.load(game_setting.ship_image[0])
+    ship.level = 0
+
+
+def show_start_version(game_setting, screen):
+    screen.blit(pygame.image.load('images/bg3.png'), (0, 0))
+    pygame.display.flip()
+
+    # print(ship.rect.y)

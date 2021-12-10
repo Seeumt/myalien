@@ -7,18 +7,24 @@ import pygame
 
 
 class Button:
-    def __init__(self,game_setting,screen,msg):
+    def __init__(self,game_setting,screen,msg,width,height,x=0,y=0,path=""):
         self.screen = screen
         self.screen_rect = screen.get_rect()
 
-        self.width = 200
-        self.height = 50
+        self.width = width
+        self.height = height
         self.button_color = (255, 255, 102)
         self.text_color = (255,255,255)
         self.font = pygame.font.SysFont(None,48)
 
-        self.rect = pygame.Rect(0,0,self.width,self.height)
-        self.rect.center = self.screen_rect.center
+        if path=="":
+            self.rect = pygame.Rect(x,y,self.width,self.height)
+        else:
+            self.rect = pygame.image.load(path).get_rect()
+            self.image = pygame.image.load(path)
+        self.rect.x = x
+        self.rect.y = y
+        # self.rect.center = self.screen_rect.center
 
         self.prep_msg(msg)
 
@@ -30,7 +36,15 @@ class Button:
 
     def draw_button(self):
         # 绘制一个用颜色填充的按钮，再绘制文本
+
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
+
+    def draw_btn(self):
+        # 绘制一个用颜色填充的按钮，再绘制文本
+
+
+        self.screen.blit(self.image,(self.rect.x,self.rect.y))
+        # self.rect = pygame.image.load(path).get_rect()
 
 
