@@ -35,6 +35,10 @@ class Ship:
 
         self.radius = 0.05
 
+        self.wudi = False
+
+        self.wudi_time = game_setting.ship_wudi_time
+
 
 
 

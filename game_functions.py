@@ -28,7 +28,7 @@ def check_fleet_edges(game_setting, aliens):
 
 
 def update_ship(game_setting, ship, stats):
-    ship.live_volume = ship.live_volume - 0.01
+    ship.live_volume = ship.live_volume - 0.001
     # print(ship.live_volume)
     if ship.live_volume <= 0:
         #     ship.live = ship.live - 1
@@ -43,9 +43,34 @@ def update_aliens(game_setting, bullets, aliens, gifts, ship, stats):
     aliens.update()
     # todo 新函数 spritecollideany(ship,aliens)
     # if pygame.sprite.spritecollideany(ship, aliens):
-    if pygame.sprite.spritecollide(ship, aliens, True, pygame.sprite.collide_circle):
+    coll = pygame.sprite.spritecollide(ship, aliens, False, pygame.sprite.collide_circle)
+    if coll:
+        alien = pygame.sprite.spritecollideany(ship, aliens)
+        alien.stop = True
+        if not ship.wudi:
+            ship.live_volume -= 0.5
+            print(ship.live_volume)
+            ship.wudi = True
+            ship.wudi_time = game_setting.ship_wudi_time
+    else:
+        for alien in aliens.sprites():
+            alien.stop = False
+        # 找到撞击对象
+
+        # 如果没有被截停
+        # if not alien.stop:
+        #     # 马上截停
+        #     alien.stop = True
+
+
+
+
+
         # live_again(game_setting, ship, aliens, bullets, gifts)
-        dead_gameover(stats, ship, game_setting)
+
+
+
+        # dead_gameover(stats, ship, game_setting)
 
         # if ship.live == 0:
         #     stats.game_active = False
@@ -227,14 +252,10 @@ def update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, 
         bullet.appear()
     for gift in gifts.sprites():
         gift.appear()
-
     for alien_bullet in alien_bullets_1.sprites():
         alien_bullet.appear()
-
-
     ship.appear()
     aliens.draw(screen)
-
     if not stats.game_active and ship.live_volume<=0:
         play_btn.draw_btn()
         exit_btn.draw_btn()

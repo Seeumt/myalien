@@ -54,9 +54,13 @@ def game1():
     game_setting, gift_sound, shot_sound, collision_sound, screen, ship, bullets, aliens, alien_bullets_1, gifts, stats, play_btn, start_btn, help_btn, exit_btn, dest_btn, cheers_btn = pre_prepare()
 
     while True:
+        # print(ship.wudi_time)
+        if ship.wudi:
+            ship.wudi_time = ship.wudi_time - 0.5
+            if ship.wudi_time <= 0:
+                ship.wudi = False
         gf.check_events(game_setting, screen, ship, bullets, aliens, gifts, shot_sound, bg, stats, play_btn, exit_btn,
                         alien_bullets_1)
-
 
         if stats.game_active:
             ship.move()
@@ -103,7 +107,6 @@ def game2():
                 life_rect.get_rect()[2] * abs(ship.live_volume), life_rect.get_rect()[3]))
             screen.blit(life_, (10, 10))
 
-
         dest_btn.draw_btn()
         gf.update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, exit_btn, stats, alien_bullets_1)
 
@@ -134,7 +137,6 @@ def game3():
                 life_rect.get_rect()[2] * abs(ship.live_volume), life_rect.get_rect()[3]))
             screen.blit(life_, (10, 10))
 
-
         dest_btn.draw_btn()
         gf.update_screen(game_setting, screen, ship, bullets, aliens, gifts, play_btn, exit_btn, stats, alien_bullets_1)
 
@@ -145,4 +147,3 @@ def game3():
             stats.game_active = False
             return 4
         pygame.display.flip()
-

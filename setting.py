@@ -12,6 +12,7 @@ class Setting:
         self.ship_speed = 1
         self.ship_live = 3
         self.ship_live_volume = 10
+        self.ship_wudi_time = 80
         self.ship_image = ["images/ship0.png","images/ship1.png"]
         # self.gift_image = "images/gift0.png"
         self.gift_image = ["images/gift0.png","images/gift1.png","images/gift2.png"]
