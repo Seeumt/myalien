@@ -41,6 +41,10 @@ class Ship:
 
         self.kill_number = 0
 
+        self.finish = False
+
+        self.win = False
+
 
 
 

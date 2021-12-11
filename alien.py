@@ -30,6 +30,15 @@ class Alien(Sprite):
 
         self.direction = 1
 
+        self.type_ = 'monster'
+
+
+        self.power = 0.5
+
+
+
+    def blitAlien(self):
+        self.screen.blit(self.image, self.rect)
 
 
 
@@ -61,10 +70,19 @@ class Alien(Sprite):
         self.direction = self.direction * -1
         if self.direction == 1:
             self.dir = 0
-            self.image_url = self.game_setting.alien_image[self.dir]
+            # if self.type_ == 'boss':
+            #     self.image_url = 'images/boss0.png'
+            # elif self.type_ =='monster':
+                # pass
+            self.image_url = self.image_url.replace("_left","_right")
+                # self.image_url = self.game_setting.alien_image[self.dir]
             self.image = pygame.image.load(self.image_url)
         elif self.direction ==-1:
             self.dir = 1
-            self.image_url = self.game_setting.alien_image[self.dir]
+            # if self.type_ == 'boss':
+            #     self.image_url = 'images/boss0.png'
+            # elif self.type_ == 'monster':
+            self.image_url = self.image_url.replace("_right","_left")
+                # self.image_url = self.game_setting.alien_image[self.dir]
             self.image = pygame.image.load(self.image_url)
 
