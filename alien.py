@@ -16,8 +16,10 @@ class Alien(Sprite):
         self.screen = screen
         self.screen_rect = self.screen.get_rect()
         self.game_setting = game_setting
-
-        self.image = pygame.image.load("images/down11.png")
+        self.stop = 0
+        self.dir = 0
+        self.image_url = game_setting.alien_image[self.dir]
+        self.image = pygame.image.load(self.image_url)
         self.rect = self.image.get_rect()
 
         # todo centerx 与 x 的区别
@@ -28,14 +30,20 @@ class Alien(Sprite):
 
         self.direction = 1
 
-        self.stop = False
+
+
 
     def update(self):
-        # print(self.stop)
-        if not self.stop:
+        if self.stop == 0:
             self.x = self.x + self.game_setting.alien_speed * self.direction
             self.rect.x = self.x
 
+    def appear(self):
+
+        if self.stop == 0:
+            self.x = self.x + self.game_setting.alien_speed * self.direction
+            self.rect.x = self.x
+        self.screen.blit(self.image, self.rect)
 
     def check_edges(self):
         if self.rect.right >= self.screen_rect.right:
@@ -51,3 +59,12 @@ class Alien(Sprite):
 
         self.rect.y = self.rect.y + self.game_setting.alien_drop_speed*self.direction
         self.direction = self.direction * -1
+        if self.direction == 1:
+            self.dir = 0
+            self.image_url = self.game_setting.alien_image[self.dir]
+            self.image = pygame.image.load(self.image_url)
+        elif self.direction ==-1:
+            self.dir = 1
+            self.image_url = self.game_setting.alien_image[self.dir]
+            self.image = pygame.image.load(self.image_url)
+

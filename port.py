@@ -52,6 +52,7 @@ def game1():
 
     bg = pygame.image.load('./images/bg1.png').convert()
     game_setting, gift_sound, shot_sound, collision_sound, screen, ship, bullets, aliens, alien_bullets_1, gifts, stats, play_btn, start_btn, help_btn, exit_btn, dest_btn, cheers_btn = pre_prepare()
+    # bg = pygame.transform.scale(bg,(game_setting.screen_width,game_setting.screen_height))
 
     while True:
         # print(ship.wudi_time)
@@ -69,6 +70,7 @@ def game1():
             # gf.check_alien(game_setting,screen,aliens,alien_bullets_1)
             gf.update_gifts(game_setting, gifts, ship, gift_sound)
             gf.update_ship(game_setting, ship, stats)
+            # gf.update_knife(game_setting,ship,stats,aliens)
             life_rect = pygame.image.load("images/life.jpeg")
             life_ = pygame.transform.scale(life_rect, (
                 life_rect.get_rect()[2] * abs(ship.live_volume), life_rect.get_rect()[3]))

@@ -33,11 +33,13 @@ class Ship:
         self.live = 3
         self.live_volume = game_setting.ship_live_volume
 
-        self.radius = 0.05
+        self.radius = 0.5
 
         self.wudi = False
 
         self.wudi_time = game_setting.ship_wudi_time
+
+        self.kill_number = 0
 
 
 
